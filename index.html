@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civix-Pulse | Report Issue</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #ff6b35;
+    --accent2: #ff3366;
+    --text: #e8e8f0;
+    --muted: #666680;
+    --success: #00d4a4;
+    --card: #15151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .header {
+    width: 100%;
+    max-width: 480px;
+    padding: 40px 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 7vw, 38px);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .complaint-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .complaint-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .complaint-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .issue-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,107,53,0.12);
+    border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-top: 12px;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.3s;
+  }
+
+  .step.active { border-color: rgba(255,107,53,0.4); }
+  .step.done { border-color: rgba(0,212,164,0.4); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .step.active .step-num {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+
+  .step.done .step-num {
+    background: var(--success);
+    color: #0a0a0f;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: var(--border);
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  .status-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .status-box.pending { background: rgba(255,107,53,0.08); color: var(--accent); border: 1px solid rgba(255,107,53,0.2); }
+  .status-box.success { background: rgba(0,212,164,0.08); color: var(--success); border: 1px solid rgba(0,212,164,0.2); }
+  .status-box.error { background: rgba(255,51,102,0.08); color: var(--accent2); border: 1px solid rgba(255,51,102,0.2); }
+
+  .photo-preview {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .audio-preview {
+    width: 100%;
+    margin-top: 12px;
+    display: none;
+    border-radius: 8px;
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  input[type="file"] { display: none; }
+
+  .recorder-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .recorder-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .recorder-btn.recording { border-color: var(--accent2); color: var(--accent2); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .coords-display {
+    font-size: 12px;
+    color: var(--success);
+    margin-top: 8px;
+    font-family: monospace;
+    display: none;
+  }
+
+  .submit-section {
+    margin-top: 8px;
+  }
+
+  .error-banner {
+    background: rgba(255,51,102,0.1);
+    border: 1px solid rgba(255,51,102,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--accent2);
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    margin-bottom: 12px;
+  }
+
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(0,212,164,0.1);
+    border: 2px solid var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 20px;
+  }
+
+  .success-screen h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--success);
+  }
+
+  .success-screen p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,15,0.9);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .invalid-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .invalid-screen h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--accent2);
+  }
+
+  .invalid-screen p { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Submitting your report...</div>
+</div>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">Civix<span>Pulse</span></div>
+  </div>
+  <h1>Complete Your<br><em>Report</em></h1>
+  <p class="subtitle">We need your location, a photo, and optionally a voice note to dispatch a crew.</p>
+</div>
+
+<div id="invalidScreen" class="invalid-screen">
+  <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+  <h2>Invalid Link</h2>
+  <p>This report link is invalid or has already been used.<br>Please request a new link via WhatsApp.</p>
+</div>
+
+<div id="mainContent" style="width:100%;max-width:480px;position:relative;z-index:1;display:none;">
+
+  <div class="complaint-card" id="complaintCard">
+    <div class="complaint-label">Your Complaint</div>
+    <div class="complaint-text" id="complaintText">Loading...</div>
+    <div class="issue-badge" id="issueBadge">📋 Loading...</div>
+  </div>
+
+  <div class="form-container">
+
+    <!-- STEP 1: Location -->
+    <div class="step active" id="step1">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">📍 Your Location</div>
+          <div class="step-desc">We need your exact GPS coordinates</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="getLocation()" id="locationBtn">
+        📍 Capture My Location
+      </button>
+      <div class="coords-display" id="coordsDisplay"></div>
+      <div class="status-box pending" id="locationStatus" style="display:none"></div>
+    </div>
+
+    <!-- STEP 2: Photo -->
+    <div class="step" id="step2">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">📸 Photo of Issue</div>
+          <div class="step-desc">Take or upload a photo of the problem</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('photoInput').click()">
+        📷 Take / Upload Photo
+      </button>
+      <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+      <img id="photoPreview" class="photo-preview" alt="Preview">
+      <div class="status-box success" id="photoStatus" style="display:none">✅ Photo captured</div>
+    </div>
+
+    <!-- STEP 3: Audio -->
+    <div class="step" id="step3">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">🎙️ Voice Note</div>
+          <div class="step-desc">Optional — describe the issue in your own words</div>
+        </div>
+      </div>
+      <button class="recorder-btn" id="recordBtn" onclick="toggleRecording()">
+        🎙️ Hold to Record Voice Note
+      </button>
+      <audio id="audioPreview" class="audio-preview" controls></audio>
+      <div class="status-box success" id="audioStatus" style="display:none">✅ Voice note recorded</div>
+      <button class="btn btn-secondary" onclick="skipAudio()" style="margin-top:8px;font-size:13px;padding:10px;">
+        Skip voice note
+      </button>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-section">
+      <div class="error-banner" id="errorBanner"></div>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitReport()" disabled>
+        🚀 Submit Report
+      </button>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <h2>Report Submitted!</h2>
+    <p>Your complaint has been logged with exact location and evidence.<br><br>
+    A crew will be dispatched shortly.<br>You'll receive a WhatsApp confirmation soon.</p>
+  </div>
+
+</div>
+
+<script>
+// ============================================
+// CONFIG
+// ============================================
+const WORKFLOW2_WEBHOOK = 'YOUR_WORKFLOW2_WEBHOOK_URL'; // Replace with n8n webhook URL
+const AIRTABLE_TOKEN = 'patnutoK60JaoqAEQ.87b42f957e5ad01c2488b7f07a5ae6af6dbba2eb0573d8e4e6e658143c236dba';
+const BASE_ID = 'appodvNHj2TD6eAXx';
+const TABLE_ID = 'tblxKtti6ueDomiil';
+
+// ============================================
+// STATE
+// ============================================
+let state = {
+  token: null,
+  recordId: null,
+  phone: null,
+  complaintData: null,
+  latitude: null,
+  longitude: null,
+  photoFile: null,
+  audioBlob: null,
+  audioSkipped: false,
+  locationDone: false,
+  photoDone: false,
+  audioDone: false
+};
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+// ============================================
+// INIT - Read token from URL
+// ============================================
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  if (!token) {
+    showInvalid();
+    return;
+  }
+
+  state.token = token;
+
+  // Look up token in Airtable
+  try {
+    showLoading('Loading your complaint...');
+    const filter = encodeURIComponent(`AND({token}='${token}',{status}='OPEN')`);
+    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?filterByFormula=${filter}&maxRecords=1`, {
+      headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` }
+    });
+    const data = await res.json();
+
+    if (!data.records || data.records.length === 0) {
+      hideLoading();
+      showInvalid();
+      return;
+    }
+
+    const record = data.records[0];
+    state.recordId = record.id;
+    state.phone = record.fields.phone;
+    state.complaintData = record.fields;
+
+    // Populate UI
+    document.getElementById('complaintText').textContent = record.fields.raw_input || record.fields.translated_description;
+    document.getElementById('issueBadge').textContent = `📋 ${record.fields.issue_type} — ${record.fields.domain}`;
+
+    hideLoading();
+    document.getElementById('mainContent').style.display = 'block';
+
+  } catch(e) {
+    hideLoading();
+    showInvalid();
+  }
+}
+
+// ============================================
+// STEP 1: Location
+// ============================================
+function getLocation() {
+  const btn = document.getElementById('locationBtn');
+  const status = document.getElementById('locationStatus');
+  btn.disabled = true;
+  btn.textContent = '⏳ Getting location...';
+  status.style.display = 'flex';
+  status.className = 'status-box pending';
+  status.textContent = '📡 Accessing GPS...';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      state.latitude = pos.coords.latitude;
+      state.longitude = pos.coords.longitude;
+      state.locationDone = true;
+
+      btn.textContent = '✅ Location Captured';
+      status.className = 'status-box success';
+      status.textContent = `✅ ${state.latitude.toFixed(5)}, ${state.longitude.toFixed(5)}`;
+
+      document.getElementById('coordsDisplay').style.display = 'block';
+      document.getElementById('coordsDisplay').textContent = `GPS: ${state.latitude}, ${state.longitude}`;
+      document.getElementById('step1').className = 'step done';
+      document.getElementById('step2').className = 'step active';
+      checkSubmitReady();
+    },
+    (err) => {
+      btn.disabled = false;
+      btn.textContent = '📍 Try Again';
+      status.className = 'status-box error';
+      status.textContent = '❌ Location denied. Please enable GPS and try again.';
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+}
+
+// ============================================
+// STEP 2: Photo
+// ============================================
+function handlePhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  state.photoFile = input.files[0];
+  state.photoDone = true;
+
+  const preview = document.getElementById('photoPreview');
+  preview.src = URL.createObjectURL(state.photoFile);
+  preview.style.display = 'block';
+  document.getElementById('photoStatus').style.display = 'flex';
+  document.getElementById('step2').className = 'step done';
+  document.getElementById('step3').className = 'step active';
+  checkSubmitReady();
+}
+
+// ============================================
+// STEP 3: Audio Recording
+// ============================================
+async function toggleRecording() {
+  const btn = document.getElementById('recordBtn');
+
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        state.audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        state.audioDone = true;
+        const audio = document.getElementById('audioPreview');
+        audio.src = URL.createObjectURL(state.audioBlob);
+        audio.style.display = 'block';
+        document.getElementById('audioStatus').style.display = 'flex';
+        document.getElementById('step3').className = 'step done';
+        stream.getTracks().forEach(t => t.stop());
+        checkSubmitReady();
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.className = 'recorder-btn recording';
+      btn.textContent = '⏹️ Stop Recording';
+    } catch(e) {
+      alert('Microphone access denied. Please enable microphone or skip.');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.className = 'recorder-btn';
+    btn.textContent = '🎙️ Record Again';
+  }
+}
+
+function skipAudio() {
+  state.audioSkipped = true;
+  state.audioDone = true;
+  document.getElementById('step3').className = 'step done';
+  document.getElementById('audioStatus').style.display = 'flex';
+  document.getElementById('audioStatus').textContent = '⏭️ Voice note skipped';
+  checkSubmitReady();
+}
+
+// ============================================
+// SUBMIT CHECK
+// ============================================
+function checkSubmitReady() {
+  const ready = state.locationDone && state.photoDone && state.audioDone;
+  document.getElementById('submitBtn').disabled = !ready;
+}
+
+// ============================================
+// SUBMIT REPORT
+// ============================================
+async function submitReport() {
+  showLoading('Submitting your report...');
+
+  try {
+    const formData = new FormData();
+    formData.append('token', state.token);
+    formData.append('record_id', state.recordId);
+    formData.append('phone', state.phone);
+    formData.append('latitude', state.latitude);
+    formData.append('longitude', state.longitude);
+    formData.append('issue_type', state.complaintData.issue_type || '');
+    formData.append('domain', state.complaintData.domain || '');
+    formData.append('event_id', state.complaintData.event_id || '');
+    formData.append('translated_description', state.complaintData.translated_description || '');
+    formData.append('sentiment_score', state.complaintData.sentiment_score || 5);
+    formData.append('panic_flag', state.complaintData.panic_flag || false);
+    formData.append('raw_input', state.complaintData.raw_input || '');
+
+    if (state.photoFile) {
+      formData.append('photo', state.photoFile, 'photo.jpg');
+    }
+
+    if (state.audioBlob && !state.audioSkipped) {
+      formData.append('audio', state.audioBlob, 'voice_note.webm');
+    }
+
+    const res = await fetch(WORKFLOW2_WEBHOOK, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (res.ok) {
+      hideLoading();
+      document.querySelector('.form-container').style.display = 'none';
+      document.querySelector('.complaint-card').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    } else {
+      throw new Error('Server error');
+    }
+
+  } catch(e) {
+    hideLoading();
+    const err = document.getElementById('errorBanner');
+    err.style.display = 'block';
+    err.textContent = '❌ Submission failed. Please check your connection and try again.';
+  }
+}
+
+// ============================================
+// HELPERS
+// ============================================
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || 'Loading...';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function showInvalid() {
+  document.getElementById('invalidScreen').style.display = 'block';
+  document.getElementById('mainContent').style.display = 'none';
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
